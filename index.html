@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quick RBLXHub Forever</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Faster+One&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Title Bar */
+        #title-bar {
+            height: 30px;
+            padding: 0 15px;
+            background: #2d2d2d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            -webkit-app-region: drag;
+        }
+
+        #app-title {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 10px;
+            -webkit-app-region: no-drag;
+        }
+
+        .control-btn {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .btn-minimize { background: #ffbd2e8d; transition: 0.3s linear; }
+        .btn-close { background: #ff5e567b; transition: 0.3s linear; }
+        .btn-minimize:hover { background: #ffbd2e; }
+        .btn-close:hover { background: #ff5f56; }
+
+        /* Content */
+        #content {
+            margin-top: 30px;
+            padding: 20px;
+            height: calc(100vh - 30px);
+            overflow-y: auto;
+        }
+
+        h1, h2 {
+            text-align: center;
+            font-weight: 300;
+        }
+
+        button {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #444;
+        }
+
+        button.primary {
+            background: #4CAF50;
+        }
+
+        button.primary:hover {
+            background: #45a049;
+        }
+
+        button.secondary {
+            background: #2196F3;
+        }
+
+        button.secondary:hover {
+            background: #1976D2;
+        }
+
+        .section {
+            margin: 20px auto;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        #launcher { display: none; }
+
+        #terminal {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            margin-top: 20px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .info-box {
+            background: #2d2d2d;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .file-path {
+            color: #4CAF50;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        /* ---------- Modal ---------- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal-box {
+            background: #2d2d2d;
+            padding: 25px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        .modal-box h2 {
+            margin-top: 0;
+            font-weight: 300;
+        }
+
+        .modal-box p {
+            font-size: 12px;
+            color: #aaa;
+            margin: 8px 0 15px 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 18px;
+        }
+
+        .text-input {
+            width: 100%;
+            box-sizing: border-box;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+            text-align: center;
+        }
+
+        .text-input:focus {
+            border-color: #4CAF50;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Title Bar -->
+    <div id="title-bar">
+        <div id="app-title">Quick RBLXHub Forever</div>
+        <div class="window-controls">
+            <button class="control-btn btn-minimize" id="minimize-btn"></button>
+            <button class="control-btn btn-close" id="close-btn"></button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content">
+
+        <!-- Setup Wizard -->
+        <div id="setup">
+            <h1>Welcome!</h1>
+            <p style="text-align:center;">Let's get you set up.</p>
+
+            <div class="section">
+                <h3>ExtremeInjector</h3>
+                <button onclick="selectInj()">Choose File</button>
+                <p id="injPath"></p>
+            </div>
+
+            <div class="section">
+                <h3>RBLXHub Forever folder (2026E 2.8 Voice chat)</h3>
+                <button onclick="selectRBLX()">Choose Folder</button>
+                <p id="RBLXPath"></p>
+            </div>
+
+            <div class="section">
+                <h3>HEADS UP!</h3>
+                <p>This program requires you to be prepared.</p>
+                <p>You'll need to have ExtremeInjector have the correct Roblox Studio process and DLL you want to inject (AUTO INJECT IS REQUIRED)</p>
+                <button onclick="saveConfig()">Save & Continue</button>
+            </div>
+        </div>
+
+        <!-- Launcher Menu -->
+        <div id="launcher">
+            <h1>Launcher</h1>
+
+            <div class="section">
+                <!-- Host Server Button -->
+                <button class="primary" onclick="hostServer()">🚀 Host Server</button>
+                
+                <div class="info-box">
+                    Select a <span class="file-path">.rbxl</span> file to host a server
+                </div>
+
+                <!-- Start Webserver Only -->
+                <button class="secondary" onclick="startWebserverOnly()">▶ Start Webserver</button>
+
+                <button onclick="startClient()">Start Roblox Player</button>
+                <button onclick="resetConfig()">Reset Config</button>
+            </div>
+
+            <pre id="terminal"></pre>
+        </div>
+
+    </div>
+
+    <!-- Place ID to Impersonate Modal (shown ONLY when Quick Launching a server) -->
+    <div id="impersonateModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Place ID to Impersonate</h2>
+            <p>
+                Sets <span class="file-path">$placeIdToImpersonate</span> inside<br>
+                <span class="file-path">assetdelivery\v1\assets\batch.php</span> and<br>
+                <span class="file-path">v1\asset.php</span>
+            </p>
+            <input
+                type="text"
+                id="impersonateInput"
+                class="text-input"
+                placeholder="e.g. 1818  (blank = 0)"
+                inputmode="numeric"
+                autocomplete="off"
+            >
+            <div class="modal-actions">
+                <button class="primary" id="impersonateConfirm">Continue</button>
+                <button id="impersonateCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const fs = require('fs');
+        const path = require('path');
+        let config = {};
+
+        function wait(seconds) {
+            return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+        }
+
+        /* Window Controls */
+        document.getElementById('minimize-btn').addEventListener('click', () => {
+            ipcRenderer.send('minimize-window');
+        });
+
+        document.getElementById('close-btn').addEventListener('click', () => {
+            ipcRenderer.send('close-window');
+        });
+
+        /* CMD Execution */
+        async function runCommand(cmd) {
+            const result = await ipcRenderer.invoke('run-cmd', cmd);
+            document.getElementById('terminal').innerText =
+                result.stdout || result.stderr || result.error || "No output.";
+        }
+
+        /* Setup Actions */
+        async function selectInj() {
+            const exePath = await ipcRenderer.invoke('pick-exe');
+            config.Injector = exePath;
+            document.getElementById('injPath').innerText = exePath;
+        }
+
+        async function selectRBLX() {
+            const folder = await ipcRenderer.invoke('pick-folder');
+            config.RBLXPath = folder;
+            document.getElementById('RBLXPath').innerText = folder;
+        }
+
+        /* ------------------------------------------------------------
+           Place ID to Impersonate patcher
+           Replaces:  $placeIdToImpersonate = "0";
+           In:
+             webserver/apache/www/assetdelivery/v1/assets/batch.php
+             webserver/apache/www/v1/asset.php
+           ------------------------------------------------------------ */
+        function patchPlaceIdToImpersonate(placeId) {
+            if (!config.RBLXPath) return 0;
+
+            const raw = String(placeId == null ? "0" : placeId).trim();
+            const safeVal = /^\d+$/.test(raw) ? raw : "0";
+
+            const wwwDir = path.join(config.RBLXPath, "webserver", "apache", "www");
+            const targets = [
+                path.join(wwwDir, "assetdelivery", "v1", "assets", "batch.php"),
+                path.join(wwwDir, "v1", "asset.php")
+            ];
+
+            let patched = 0;
+
+            for (const file of targets) {
+                if (!fs.existsSync(file)) {
+                    console.warn("placeIdToImpersonate target missing:", file);
+                    continue;
+                }
+                try {
+                    const content = fs.readFileSync(file, 'utf8');
+
+                    // Match  $placeIdToImpersonate = "0";  (any quotes / digits / whitespace)
+                    const regex = /\$placeIdToImpersonate\s*=\s*["']?\d+["']?\s*;/;
+                    const replacement = `$placeIdToImpersonate = "${safeVal}";`;
+
+                    if (regex.test(content)) {
+                        const newContent = content.replace(regex, replacement);
+                        if (newContent !== content) {
+                            fs.writeFileSync(file, newContent, 'utf8');
+                            patched++;
+                            console.log(`Patched placeIdToImpersonate = "${safeVal}" in ${file}`);
+                        }
+                    } else {
+                        console.warn("No $placeIdToImpersonate assignment found in", file);
+                    }
+                } catch (e) {
+                    console.error("patch placeIdToImpersonate failed for", file, e);
+                }
+            }
+
+            return patched;
+        }
+
+        /* ------------------ Impersonate Modal ------------------ */
+        function askPlaceIdToImpersonate() {
+            return new Promise(resolve => {
+                const modal = document.getElementById('impersonateModal');
+                const input = document.getElementById('impersonateInput');
+                const confirmBtn = document.getElementById('impersonateConfirm');
+                const cancelBtn  = document.getElementById('impersonateCancel');
+
+                // Pre-fill last used value if any
+                input.value = config.PlaceIdToImpersonate || "";
+                modal.style.display = "flex";
+
+                setTimeout(() => { input.focus(); input.select(); }, 50);
+
+                const cleanup = () => {
+                    modal.style.display = "none";
+                    confirmBtn.removeEventListener('click', onConfirm);
+                    cancelBtn.removeEventListener('click', onCancel);
+                    input.removeEventListener('keydown', onKey);
+                };
+
+                const onConfirm = () => {
+                    const val = (input.value || "").trim();
+                    cleanup();
+                    resolve(val);
+                };
+
+                const onCancel = () => {
+                    cleanup();
+                    resolve(null);
+                };
+
+                const onKey = (e) => {
+                    if (e.key === 'Enter') onConfirm();
+                    if (e.key === 'Escape') onCancel();
+                };
+
+                confirmBtn.addEventListener('click', onConfirm);
+                cancelBtn.addEventListener('click', onCancel);
+                input.addEventListener('keydown', onKey);
+            });
+        }
+
+        /* Webserver Auto-Patcher */
+        function patchWebserverFiles() {
+            if (!config.RBLXPath) return;
+            const wwwDir = path.join(config.RBLXPath, "webserver", "apache", "www");
+            if (!fs.existsSync(wwwDir)) return;
+
+            let patchedCount = 0;
+
+            // 1. studio-open-place/v1.php
+            const studioOpenPlaceFile = path.join(wwwDir, "studio-open-place", "v1.php");
+            if (fs.existsSync(studioOpenPlaceFile)) {
+                try {
+                    const content = fs.readFileSync(studioOpenPlaceFile, 'utf8');
+                    if (!content.includes('$_GET[\'placeId\']')) {
+                        const newContent = `<?php
+header('Content-Type: application/json');
+$placeId = 1;
+if (isset($_GET['placeId'])) {
+    $placeId = (int)$_GET['placeId'];
+} elseif (isset($_GET['placeid'])) {
+    $placeId = (int)$_GET['placeid'];
+} elseif (isset($_SERVER['HTTP_ROBLOX_PLACE_ID'])) {
+    $placeId = (int)$_SERVER['HTTP_ROBLOX_PLACE_ID'];
+}
+if ($placeId <= 0) $placeId = 1;
+
+echo json_encode([
+    "universe" => [
+        "Id" => $placeId,
+        "RootPlaceId" => $placeId,
+        "Name" => "My Revival Game",
+        "IsArchived" => false,
+        "CreatorType" => "User",
+        "CreatorTargetId" => 1,
+        "PrivacyType" => "Public",
+        "Created" => "2013-11-01T08:47:14.07+00:00",
+        "Updated" => "2023-05-02T22:03:01.107+00:00"
+    ],
+    "teamCreateEnabled" => false,
+    "place" => [
+        "Creator" => [
+            "CreatorType" => "User",
+            "CreatorTargetId" => 1
+        ]
+    ]
+]);
+?>`;
+                        fs.writeFileSync(studioOpenPlaceFile, newContent, 'utf8');
+                        patchedCount++;
+                    }
+                } catch(e) { console.error("Auto-patch studio-open-place failed:", e); }
+            }
+
+            // 2. assetgame/game/join.php
+            const joinFile = path.join(wwwDir, "assetgame", "game", "join.php");
+            if (fs.existsSync(joinFile)) {
+                try {
+                    let content = fs.readFileSync(joinFile, 'utf8');
+                    if (content.includes('"UniverseId" => 1,')) {
+                        content = content.replace('"UniverseId" => 1,', '"UniverseId" => $placeId,');
+                        fs.writeFileSync(joinFile, content, 'utf8');
+                        patchedCount++;
+                    }
+                } catch(e) { console.error("Auto-patch join.php failed:", e); }
+            }
+
+            // 3. gamejoin/v1/join-game.php
+            const joinGameFile = path.join(wwwDir, "gamejoin", "v1", "join-game.php");
+            if (fs.existsSync(joinGameFile)) {
+                try {
+                    let content = fs.readFileSync(joinGameFile, 'utf8');
+                    if (content.includes('"UniverseId" => 1,')) {
+                        content = content.replace('"UniverseId" => 1,', '"UniverseId" => $placeId,');
+                        fs.writeFileSync(joinGameFile, content, 'utf8');
+                        patchedCount++;
+                    }
+                } catch(e) { console.error("Auto-patch join-game.php failed:", e); }
+            }
+
+            // 4. games/v1/games.php
+            const gamesFile = path.join(wwwDir, "games", "v1", "games.php");
+            if (fs.existsSync(gamesFile)) {
+                try {
+                    let content = fs.readFileSync(gamesFile, 'utf8');
+                    if (content.includes("define('PLACE_ID', 1);")) {
+                        content = content.replace("define('PLACE_ID', 1);", `$reqPlaceId = 1;\nif (isset($_GET['placeId'])) { $reqPlaceId = (int)$_GET['placeId']; } elseif (isset($_SERVER['HTTP_ROBLOX_PLACE_ID'])) { $reqPlaceId = (int)$_SERVER['HTTP_ROBLOX_PLACE_ID']; }\ndefine('PLACE_ID', $reqPlaceId > 0 ? $reqPlaceId : 1);`);
+                        content = content.replace('"rootPlaceId":\' . PLACE_ID', '"rootPlaceId":\' . $universeId');
+                        fs.writeFileSync(gamesFile, content, 'utf8');
+                        patchedCount++;
+                    }
+                } catch(e) { console.error("Auto-patch games.php failed:", e); }
+            }
+
+            // 5. Place ID to Impersonate (batch.php + asset.php)
+            patchedCount += patchPlaceIdToImpersonate(config.PlaceIdToImpersonate);
+
+            if (patchedCount > 0) {
+                console.log(`Auto-patched ${patchedCount} webserver file(s).`);
+            }
+        }
+
+        async function saveConfig() {
+            await ipcRenderer.invoke('save-config', config);
+            patchWebserverFiles();
+            document.getElementById('setup').style.display = "none";
+            document.getElementById('launcher').style.display = "block";
+        }
+
+        /* Load Config on Startup */
+        (async () => {
+            const cfg = await ipcRenderer.invoke('load-config');
+            if (cfg) {
+                config = cfg;
+                patchWebserverFiles();
+                document.getElementById('setup').style.display = "none";
+                document.getElementById('launcher').style.display = "block";
+            }
+        })();
+
+        /* Helper to verify if a file is a REAL Roblox Place file (.rbxl only now) */
+        function isRealPlaceFile(filePath) {
+            try {
+                if (!fs.existsSync(filePath) || fs.statSync(filePath).size < 500) return false;
+                const fd = fs.openSync(filePath, 'r');
+                const buffer = Buffer.alloc(16);
+                fs.readSync(fd, buffer, 0, 16, 0);
+                fs.closeSync(fd);
+                const header = buffer.toString('utf8');
+                return header.startsWith("<roblox!") || header.startsWith("<roblox");
+            } catch(e) {
+                return false;
+            }
+        }
+
+        /* Ensure Apache Webserver is Running (Non-blocking) */
+        async function ensureWebserverRunning() {
+            if (!config.RBLXPath) return;
+            const apacheDir = path.join(config.RBLXPath, "webserver", "apache");
+            const httpdExe = path.join(apacheDir, "bin", "httpd.exe");
+            const confFile = path.join(apacheDir, "conf", "httpd.conf");
+            const phpDir = path.join(apacheDir, "php", "php-5.5.15");
+
+            if (!fs.existsSync(httpdExe)) return;
+
+            try {
+                // Check if httpd.exe is already running
+                const check = await ipcRenderer.invoke('run-cmd', 'tasklist /FI "IMAGENAME eq httpd.exe"');
+                if (check && check.stdout && check.stdout.includes('httpd.exe')) {
+                    console.log("Apache is already running.");
+                    return;
+                }
+
+                console.log("Apache is offline. Launching httpd.exe...");
+                const psCmd = `powershell -WindowStyle Hidden -Command "$env:PHPRC='${phpDir}'; Start-Process '${httpdExe}' -ArgumentList '-d','\\"${apacheDir}\\"','-f','\\"${confFile}\\"' -WindowStyle Hidden"`;
+                await ipcRenderer.invoke('run-cmd', psCmd);
+                await wait(1);
+            } catch(e) {
+                console.error("ensureWebserverRunning error:", e);
+            }
+        }
+
+        /* Detect highest existing REAL place ID and auto-generate next unused ID */
+        function getNextUnusedPlaceId() {
+            let maxPlaceId = 0;
+            if (config.RBLXPath) {
+                const dirs = [
+                    path.join(config.RBLXPath, "webserver", "apache", "www", "CachedRBLXAssets"),
+                    path.join(config.RBLXPath, "webserver", "apache", "www", "Assets"),
+                    path.join(config.RBLXPath, "webserver", "apache", "www", "AssetReplacements")
+                ];
+
+                for (const d of dirs) {
+                    if (fs.existsSync(d)) {
+                        try {
+                            const files = fs.readdirSync(d);
+                            for (const f of files) {
+                                if (/^\d+$/.test(f)) {
+                                    const num = parseInt(f, 10);
+                                    if (num < 2000000000 && isRealPlaceFile(path.join(d, f))) {
+                                        if (num > maxPlaceId) maxPlaceId = num;
+                                    }
+                                }
+                            }
+                        } catch(e) {}
+                    }
+                }
+            }
+
+            if (config.places) {
+                for (const pid of Object.values(config.places)) {
+                    if (typeof pid === 'number' && pid > maxPlaceId && pid < 2000000000) {
+                        maxPlaceId = pid;
+                    }
+                }
+            }
+
+            return maxPlaceId > 0 ? maxPlaceId + 1 : 1772336110;
+        }
+
+        async function pickPlaceFile() {
+            const place = await ipcRenderer.invoke('pick-place');
+            if (!place) return null;
+
+            config.placeFile = place;
+            return place;
+        }
+
+        /* ============================================================
+           START WEBSERVER ONLY
+           ============================================================ */
+        async function startWebserverOnly() {
+            patchWebserverFiles();
+            await ensureWebserverRunning();
+            document.getElementById('terminal').innerText = "✅ Webserver started!";
+        }
+
+        /* ============================================================
+           HOST SERVER - Copy to server.rbxl and launch Studio
+           Also asks for Place ID to Impersonate (quick-launch prompt)
+           ============================================================ */
+        async function hostServer() {
+            const { shell } = require('electron');
+
+            // -------- Ask for Place ID to Impersonate (quick-launch prompt) --------
+            const impersonateValue = await askPlaceIdToImpersonate();
+            if (impersonateValue === null) {
+                // User cancelled the modal — abort hosting
+                document.getElementById('terminal').innerText = "Hosting cancelled.";
+                return;
+            }
+
+            const trimmed = String(impersonateValue).trim();
+            if (trimmed && /^\d+$/.test(trimmed)) {
+                config.PlaceIdToImpersonate = trimmed;
+            } else {
+                config.PlaceIdToImpersonate = "0";
+            }
+            await ipcRenderer.invoke('save-config', config);
+
+            // Patch the impersonation files immediately with the chosen ID
+            patchPlaceIdToImpersonate(config.PlaceIdToImpersonate);
+            // ----------------------------------------------------------------------
+
+            patchWebserverFiles();
+            await ensureWebserverRunning();
+
+            document.getElementById('terminal').innerText = "Starting ExtremeInjector...";
+            shell.openPath(config.Injector);
+
+            await wait(2);
+
+            // Pick .rbxl file ONLY
+            const place = await pickPlaceFile();
+            if (!place) {
+                document.getElementById('terminal').innerText = "No .rbxl file selected!";
+                return;
+            }
+
+            document.getElementById('terminal').innerText = `Selected: ${path.basename(place)}\nCopying to server.rbxl...`;
+
+            // Copy to %LOCALAPPDATA%\Roblox\server.rbxl
+            const copyResult = await ipcRenderer.invoke('copy-to-server-rbxl', place);
+            if (!copyResult.success) {
+                document.getElementById('terminal').innerText = `Failed to copy: ${copyResult.error}`;
+                return;
+            }
+
+            document.getElementById('terminal').innerText = `✅ Copied to: ${copyResult.destPath}\nStarting Studio...`;
+
+            // Get or assign place ID
+            config.places = config.places || {};
+            const savedPlaceId = config.places[place];
+            const placeId = Number.isInteger(savedPlaceId) && savedPlaceId > 0
+                ? savedPlaceId
+                : getNextUnusedPlaceId();
+            config.places[place] = placeId;
+            config.lastPlaceId = placeId;
+            await ipcRenderer.invoke('save-config', config);
+
+            const studioExe = path.join(config.RBLXPath, "2026EStudio", "RobloxStudioBeta.exe");
+            if (!fs.existsSync(studioExe)) {
+                document.getElementById('terminal').innerText = "Studio exe not found: " + studioExe;
+                return;
+            }
+
+            // Launch Studio - it will auto-load server.rbxl!
+            const args = [
+                "-task", "StartServer",
+                "-placeId", placeId.toString(),
+                "-universeId", placeId.toString(),
+                "-creatorId", "1",
+                "-creatorType", "0",
+                "-placeVersion", "1",
+                "-port", "53640",
+                "-numTestServerPlayersUponStartup", "0",
+                "-instanceId", "StudioServer",
+                "-gameId", "Test"
+            ];
+
+            const result = await ipcRenderer.invoke('spawn-studio', studioExe, args);
+
+            if (result.error) {
+                document.getElementById('terminal').innerText = "Studio launch error: " + result.error;
+                return;
+            }
+
+            await wait(3);
+
+            document.getElementById('terminal').innerText =
+                `🚀 SERVER HOSTED!\n` +
+                `Place ID: ${placeId}\n` +
+                `placeIdToImpersonate: ${config.PlaceIdToImpersonate}\n` +
+                `Studio PID: ${result.stdout}\n\n` +
+                `Click "Start Roblox Player" to join!`;
+        }
+
+        /* Patch Launcher Binary with Target Place ID */
+        function patchLauncherExe(placeId) {
+            if (!config.RBLXPath) return false;
+            let launcherPath = path.join(config.RBLXPath, "2026E", "launcherthingyrelease.exe");
+            if (!fs.existsSync(launcherPath)) {
+                launcherPath = path.join(config.RBLXPath, "launcherthingyrelease.exe");
+            }
+            if (!fs.existsSync(launcherPath)) {
+                console.error("launcherthingyrelease.exe not found at", launcherPath);
+                return false;
+            }
+
+            try {
+                const buf = fs.readFileSync(launcherPath);
+                const targetMarker = 'roblox://experiences/start?placeId=';
+                const idx = buf.indexOf(targetMarker);
+                if (idx === -1) {
+                    console.error("Could not find placeId string target in launcher binary.");
+                    return false;
+                }
+
+                const newStr = `roblox://experiences/start?placeId=${placeId}"\x00`;
+                const newBuf = Buffer.from(newStr, 'utf8');
+
+                newBuf.copy(buf);
+
+                if (newBuf.length < 44) {
+                    buf.fill(0, idx + newBuf.length, idx + 44);
+                }
+
+                fs.writeFileSync(launcherPath, buf);
+                console.log(`Successfully patched launcherthingyrelease.exe for placeId ${placeId}`);
+                return true;
+            } catch(e) {
+                console.error("Error patching launcher binary:", e);
+                return false;
+            }
+        }
+
+        async function startClient() {
+            const placeId = config.lastPlaceId || 1;
+            document.getElementById('terminal').innerText = `Patching launcher for Place ID ${placeId}...`;
+
+            let launcherExe = path.join(config.RBLXPath, "2026E", "launcherthingyrelease.exe");
+            if (!fs.existsSync(launcherExe)) {
+                launcherExe = path.join(config.RBLXPath, "launcherthingyrelease.exe");
+            }
+            if (!fs.existsSync(launcherExe)) {
+                document.getElementById('terminal').innerText = "Launcher exe not found: " + launcherExe;
+                return;
+            }
+
+            const patched = patchLauncherExe(placeId);
+            if (!patched) {
+                document.getElementById('terminal').innerText = "Failed to patch launcher binary for Place ID " + placeId;
+                return;
+            }
+
+            document.getElementById('terminal').innerText = `Starting Roblox Player for Place ID ${placeId}...`;
+            runCommand(`"${launcherExe}"`);
+        }
+
+        async function resetConfig() {
+            await ipcRenderer.invoke('save-config', {});
+            location.reload();
+        }
+    </script>
+</body>
+</html>
